@@ -54,7 +54,7 @@ let assign : 'a dyn =
               do_assign
                 (extern_of_dyn node)
                 (string_of_dyn (car attr)) (string_of_dyn (cdr attr))
-                (integer_of_dyn value);
+                (int_of_dyn value);
               Void)));;
 
 let lookup : 'a dyn =

@@ -43,11 +43,9 @@
                  "Renaming preserves box")
 
    (check-equal? (gen:rename `(set-box! (box (let (x 7) x))
-                                        (let (x 8) (cons x x))
-                                        (let (x null) x)))
+                                        (let (x 8) (cons x x))))
                  `(set-box! (box (let (x_0 7) x_0))
-                            (let (x_0 8) (cons x_0 x_0))
-                            (let (x_0 null) x_0))
+                            (let (x_0 8) (cons x_0 x_0)))
                  "Renaming preserves set-box!")
 
    (check-equal? (gen:rename `(unbox (let (x 8) (box x))))
@@ -158,9 +156,8 @@
                  "Evaluation preserves box")
 
    (check-equal? (evaluate `(set-box! (box (let (x 7) x))
-                                        (let (x 8) (cons x x))
-                                        (let (x null) x)))
-                 `(set-box! (box 7) (cons 8 8) null)
+                                        (let (x 8) (cons x x))))
+                 `(set-box! (box 7) (cons 8 8))
                  "Evaluation preserves set-box!")
 
    (check-equal? (evaluate `(unbox (let (x 8) (box x))))
@@ -311,7 +308,18 @@
 
    (check-equal? (evaluate `((lambda f (x) x) (let (x (box 0)) (lambda f (y) x))))
                  `(let (x_0 (box 0)) (lambda f_0 (y_0) x_0))
-                 "Evaluation of application across let-binding"))))
+                 "Evaluation of application across let-binding")
+
+   (check-equal? (evaluate `(if b 0 ((lambda f (x) (f x)) 9)))
+                 `(if b 0 (let (f_0 (lambda f_0 (x_0) (f_0 x_0))) (f_0 9)))
+                 "Evaluation does not unfold f(x) = f(x)")
+
+   (check-equal? (evaluate `(if b 0
+                                ((lambda f (x)
+                                         (if (null? (cdr x)) (car x) (f (cdr x))))
+                                 (cons 1 (cons 2 (cons 3 null))))))
+                 `(if b 0 3)
+                 "Evaluation of structural recursion"))))
 
 (define translate-tests
   (test-suite
@@ -346,11 +354,11 @@
                  "Translate free variable")
 
    (check-equal? (gen:translate `(lambda f (x) (+ x x)))
-                 "let rec f = Lambda (fun x -> __add (x) (x)) in f"
+                 "let rec f = Lambda (fun x -> add (x) (x)) in f"
                  "Translate non-recursive lambda")
 
    (check-equal? (gen:translate `(lambda f (x) (if x 1 (f 3))))
-                 "let rec f = Lambda (fun x -> if __truth (x) then (Integer 1) else (__app (f) (Integer 3))) in f"
+                 "let rec f = Lambda (fun x -> if truth (x) then (Integer 1) else (app (f) (Integer 3))) in f"
                  "Translate recursive lambda")
 
    (check-equal? (gen:translate `(let (x 7) x))
@@ -361,8 +369,8 @@
                  "ref (Integer 9)"
                  "Translate box")
 
-   (check-equal? (gen:translate `(set-box! b 9 0))
-                 "b := Integer 9; Integer 0"
+   (check-equal? (gen:translate `(set-box! b 9))
+                 "b := Integer 9"
                  "Translate mutation")
 
    (check-equal? (gen:translate `(unbox b))
@@ -382,55 +390,55 @@
                  "Translate cdr")
 
    (check-equal? (gen:translate `(+ x y))
-                 "__add (x) (y)"
+                 "add (x) (y)"
                  "Translate addition")
 
    (check-equal? (gen:translate `(- x y))
-                 "__sub (x) (y)"
+                 "sub (x) (y)"
                  "Translate subtraction")
 
    (check-equal? (gen:translate `(* x y))
-                 "__mul (x) (y)"
+                 "mul (x) (y)"
                  "Translate multiplication")
 
    (check-equal? (gen:translate `(/ x y))
-                 "__div (x) (y)"
+                 "div (x) (y)"
                  "Translate division")
 
    (check-equal? (gen:translate `(if x y z))
-                 "if __truth (x) then (y) else (z)"
+                 "if truth (x) then (y) else (z)"
                  "Translate division")
 
    (check-equal? (gen:translate `(void? v))
-                 "__is_void (v)"
+                 "is_void (v)"
                  "Translate void?")
 
    (check-equal? (gen:translate `(null? v))
-                 "__is_null (v)"
+                 "is_null (v)"
                  "Translate null?")
 
    (check-equal? (gen:translate `(boolean? v))
-                 "__is_boolean (v)"
+                 "is_boolean (v)"
                  "Translate boolean?")
 
    (check-equal? (gen:translate `(integer? v))
-                 "__is_integer (v)"
+                 "is_integer (v)"
                  "Translate integer?")
 
    (check-equal? (gen:translate `(string? v))
-                 "__is_string (v)"
+                 "is_string (v)"
                  "Translate string?")
 
    (check-equal? (gen:translate `(string? v))
-                 "__is_string (v)"
+                 "is_string (v)"
                  "Translate string?")
 
    (check-equal? (gen:translate `(cons? v))
-                 "__is_cons (v)"
+                 "is_cons (v)"
                  "Translate cons?")
 
    (check-equal? (gen:translate `(lambda? v))
-                 "__is_lambda (v)"
+                 "is_lambda (v)"
                  "Translate lambda?")
 
    (check-equal? (gen:translate `(equal? x y))
@@ -438,11 +446,11 @@
                  "Translate equal?")
 
    (check-equal? (gen:translate `(begin (f 0) (g 1) (h 2)))
-                 "(__app (f) (Integer 0); __app (g) (Integer 1); __app (h) (Integer 2))"
+                 "(app (f) (Integer 0); app (g) (Integer 1); app (h) (Integer 2))"
                  "Translate begin")
 
    (check-equal? (gen:translate `(f x))
-                 "__app (f) (x)"
+                 "app (f) (x)"
                  "Translate application")))
 
 (run-tests rename-tests)

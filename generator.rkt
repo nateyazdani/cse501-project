@@ -420,9 +420,6 @@
     [`(= ,e1 ,e2) (format "eq (~a) (~a)" (translate e1) (translate e2))]
     [`(>= ,e1 ,e2) (format "ge (~a) (~a)" (translate e1) (translate e2))]
     [`(> ,e1 ,e2) (format "gt (~a) (~a)" (translate e1) (translate e2))]
-    [`(- ,e1 ,e2) (format "sub (~a) (~a)" (translate e1) (translate e2))]
-    [`(* ,e1 ,e2) (format "mul (~a) (~a)" (translate e1) (translate e2))]
-    [`(/ ,e1 ,e2) (format "div (~a) (~a)" (translate e1) (translate e2))]
 
     ; Conditional expression
     [`(if ,e1 ,e2 ,e3)

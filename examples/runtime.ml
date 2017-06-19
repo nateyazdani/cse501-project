@@ -14,12 +14,12 @@ let lambda_of_dyn d =
   | Lambda f -> f
   | _ -> failwith "expected lambda";;
 
-let integer_of_dyn d =
+let int_of_dyn d =
   match d with
   | Integer i -> i
   | _ -> failwith "expected integer";;
 
-let boolean_of_dyn d =
+let bool_of_dyn d =
   match d with
   | Boolean b -> b
   | _ -> failwith "expected boolean";;
@@ -49,102 +49,86 @@ let extern_of_dyn d =
   | Extern v -> v
   | _ -> failwith "expected external data";;
 
-let app f x =
-    match f with
-    | Lambda f -> f x
-    | _ -> failwith "application of non-lambda";;
-
 let is_lambda d =
-    match d with
-    | Lambda _ -> Boolean true
-    | _ -> Boolean false;;
+  match d with
+  | Lambda _ -> Boolean true
+  | _ -> Boolean false;;
 
-let car d =
-    match d with
-    | Cons (x, _) -> x
-    | _ -> failwith "car of non-pair";;
+let is_bool d =
+  match d with
+  | Boolean _ -> Boolean true
+  | _ -> Boolean false;;
 
-let cdr d =
-    match d with
-    | Cons (_, y) -> y
-    | _ -> failwith "cdr of non-pair";;
-
-let is_pair d =
-    match d with
-    | Cons _ -> Boolean true
-    | _ -> Boolean false;;
-
-let is_null d =
-    match d with
-    | Null -> Boolean true
-    | _ -> Boolean false;;
-
-let is_integer d =
-    match d with
-    | Integer _ -> Boolean true
-    | _ -> Boolean false;;
+let is_int d =
+  match d with
+  | Integer _ -> Boolean true
+  | _ -> Boolean false;;
 
 let is_string d =
-    match d with
-    | String _ -> Boolean true
-    | _ -> Boolean false;;
+  match d with
+  | String _ -> Boolean true
+  | _ -> Boolean false;;
+
+let is_cons d =
+  match d with
+  | Cons _ -> Boolean true
+  | _ -> Boolean false;;
+
+let is_null d =
+  match d with
+  | Null -> Boolean true
+  | _ -> Boolean false;;
 
 let is_void d =
-    match d with
-    | Void -> Boolean true
-    | _ -> Boolean false;;
+  match d with
+  | Void -> Boolean true
+  | _ -> Boolean false;;
+
+let app f x =
+  lambda_of_dyn(f) x;;
+
+let cons x y =
+  Cons (x, y);;
+
+let car d =
+  match d with
+  | Cons (x, _) -> x
+  | _ -> failwith "car of non-pair";;
+
+let cdr d =
+  match d with
+  | Cons (_, y) -> y
+  | _ -> failwith "cdr of non-pair";;
 
 let truth d =
-    match d with
-    | Boolean false -> false
-    | _ -> true;;
-
-let is_boolean d =
-    match d with
-    | Boolean _ -> Boolean true
-    | _ -> Boolean false;;
+  match d with
+  | Boolean false -> false
+  | _ -> true;;
 
 let add x y =
-    match x, y with
-    | Integer i, Integer j -> Integer (i + j)
-    | _ -> failwith "+ of non-integers";;
+  int_of_dyn(x) + int_of_dyn(y);;
 
 let sub x y =
-    match x, y with
-    | Integer i, Integer j -> Integer (i - j)
-    | _ -> failwith "- of non-integers";;
+  int_of_dyn(x) - int_of_dyn(y);;
 
 let mul x y =
-    match x, y with
-    | Integer i, Integer j -> Integer (i * j)
-    | _ -> failwith "* of non-integers";;
+  int_of_dyn(x) * int_of_dyn(y);;
 
 let div x y =
-    match x, y with
-    | Integer i, Integer j -> Integer (i / j)
-    | _ -> failwith "/ of non-integers";;
+  int_of_dyn(x) / int_of_dyn(y);;
 
 let lt x y =
-    match x, y with
-    | Integer i, Integer j -> Boolean (i < j)
-    | _ -> failwith "< of non-integers";;
+  int_of_dyn(x) < int_of_dyn(y);;
 
 let le x y =
-    match x, y with
-    | Integer i, Integer j -> Boolean (i <= j)
-    | _ -> failwith "<= of non-integers";;
+  int_of_dyn(x) <= int_of_dyn(y);;
 
 let eq x y =
-    match x, y with
-    | Integer i, Integer j -> Boolean (i = j)
-    | _ -> failwith "= of non-integers";;
+  int_of_dyn(x) = int_of_dyn(y);;
 
 let ge x y =
-    match x, y with
-    | Integer i, Integer j -> Boolean (i >= j)
-    | _ -> failwith ">= of non-integers";;
+  int_of_dyn(x) >= int_of_dyn(y);;
 
 let gt x y =
-    match x, y with
-    | Integer i, Integer j -> Boolean (i > j)
-    | _ -> failwith "> of non-integers";;
+  int_of_dyn(x) > int_of_dyn(y);;
+
